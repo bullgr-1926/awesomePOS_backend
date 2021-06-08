@@ -27,6 +27,7 @@ const Category = new Schema({
   },
   discountExpiration: {
     type: Date,
+    default: Date.now,
   },
 });
 

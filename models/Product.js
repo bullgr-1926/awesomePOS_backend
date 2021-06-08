@@ -33,6 +33,7 @@ const Product = new Schema({
   },
   discountExpiration: {
     type: Date,
+    default: Date.now,
   },
 });
 

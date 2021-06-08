@@ -34,8 +34,8 @@ authRouter.post("/register", verifyAdminToken, async (req, res) => {
     return res.status(400).send(error);
   }
 
-  user.save();
-  res.json({ user });
+  await user.save();
+  res.status(200).send("User registration was successful");
 });
 
 authRouter.post("/login", async (req, res) => {
