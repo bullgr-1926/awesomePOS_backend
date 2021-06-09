@@ -17,12 +17,16 @@ const authRouter = require("./routes/authRouter");
 const userRouter = require("./routes/userRouter");
 const categoryRouter = require("./routes/categoryRouter");
 const productRouter = require("./routes/productRouter");
+const receiptRouter = require("./routes/receiptRouter");
+const storeRouter = require("./routes/storeRouter");
 
 // Router setup
-app.use("/user", authRouter);
 app.use("/", userRouter);
+app.use("/user", authRouter);
 app.use("/categories", categoryRouter);
 app.use("/products", productRouter);
+app.use("/receipts", receiptRouter);
+app.use("/store", storeRouter);
 
 // Connect to Database
 mongoose.connect(process.env.MONGO_DB, {

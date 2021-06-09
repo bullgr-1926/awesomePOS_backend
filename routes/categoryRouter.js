@@ -9,7 +9,7 @@ const verifyToken = require("./verifyToken");
 categoryRouter.get("/", verifyToken, async (req, res) => {
   const allCategories = await Category.find({});
   if (!allCategories) {
-    return res.status(400).send("Error getting Categories");
+    return res.status(400).send("Error getting categories");
   }
   res.json({ allCategories });
 });
@@ -20,7 +20,7 @@ categoryRouter.get("/", verifyToken, async (req, res) => {
 categoryRouter.get("/:id", verifyToken, async (req, res) => {
   const getCategory = await Category.findById(req.params.id);
   if (!getCategory) {
-    return res.status(400).send("Error getting Category");
+    return res.status(400).send("Error getting category");
   }
   res.json({ getCategory });
 });
@@ -32,7 +32,7 @@ categoryRouter.get("/:id", verifyToken, async (req, res) => {
 categoryRouter.put("/:id", verifyAdminToken, async (req, res) => {
   const updateCategory = await Category.findById(req.params.id);
   if (!updateCategory) {
-    return res.status(400).send("Error getting Category");
+    return res.status(400).send("Error getting category");
   }
 
   updateCategory.title = req.body.title;
@@ -83,7 +83,7 @@ categoryRouter.post("/add_category", verifyAdminToken, async (req, res) => {
 categoryRouter.delete("/:id", verifyAdminToken, async (req, res) => {
   const deleteCategory = await Category.deleteOne({ _id: req.params.id });
   if (!deleteCategory) {
-    return res.status(400).send("Error deleting Category");
+    return res.status(400).send("Error deleting category");
   }
   res.status(200).send("Deleting category was successful");
 });

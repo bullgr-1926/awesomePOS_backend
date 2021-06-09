@@ -24,6 +24,13 @@ const Product = new Schema({
     min: 0,
     default: 0,
   },
+  barcode: {
+    type: String,
+    trim: true,
+    required: true,
+    maxLength: 30,
+    default: "0",
+  },
   discount: {
     type: Number,
     trim: true,

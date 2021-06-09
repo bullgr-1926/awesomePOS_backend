@@ -23,7 +23,7 @@ const checkCategory = async (categoryTitle) => {
 productRouter.get("/", verifyToken, async (req, res) => {
   const allProducts = await Product.find({});
   if (!allProducts) {
-    return res.status(400).send("Error getting Products");
+    return res.status(400).send("Error getting products");
   }
   res.json({ allProducts });
 });
@@ -34,7 +34,29 @@ productRouter.get("/", verifyToken, async (req, res) => {
 productRouter.get("/:id", verifyToken, async (req, res) => {
   const getProduct = await Product.findById(req.params.id);
   if (!getProduct) {
-    return res.status(400).send("Error getting Product");
+    return res.status(400).send("Error getting product");
+  }
+  res.json({ getProduct });
+});
+
+//
+// Search a product by title or barcode
+// Request is a object:
+// type: title of barcode
+// value: the value of the correspond type
+//
+productRouter.post("/search", verifyToken, async (req, res) => {
+  let getProduct = "";
+  if (req.body.type === "title") {
+    getProduct = await Product.findOne({ title: req.body.value });
+  }
+
+  if (req.body.type === "barcode") {
+    getProduct = await Product.findOne({ barcode: req.body.value });
+  }
+
+  if (!getProduct) {
+    return res.status(400).send("Error getting product");
   }
   res.json({ getProduct });
 });
@@ -46,7 +68,7 @@ productRouter.get("/:id", verifyToken, async (req, res) => {
 productRouter.put("/:id", verifyAdminToken, async (req, res) => {
   const updateProduct = await Product.findById(req.params.id);
   if (!updateProduct) {
-    return res.status(400).send("Error getting Product");
+    return res.status(400).send("Error getting product");
   }
 
   // Check if the given category for this product exist.
@@ -60,6 +82,7 @@ productRouter.put("/:id", verifyAdminToken, async (req, res) => {
   updateProduct.description = req.body.description;
   updateProduct.category = req.body.category;
   updateProduct.price = req.body.price;
+  updateProduct.barcode = req.body.barcode;
   updateProduct.discount = req.body.discount;
   updateProduct.discountExpiration = req.body.discountExpiration;
 
@@ -94,6 +117,7 @@ productRouter.post("/add_product", verifyAdminToken, async (req, res) => {
     description: req.body.description,
     category: req.body.category,
     price: req.body.price,
+    barcode: req.body.barcode,
     discount: req.body.discount,
     discountExpiration: req.body.discountExpiration,
   });
@@ -112,7 +136,7 @@ productRouter.post("/add_product", verifyAdminToken, async (req, res) => {
 //
 productRouter.delete("/:id", verifyAdminToken, async (req, res) => {
   const deleteProduct = await Product.deleteOne({ _id: req.params.id });
-  if (!deleteCategory) {
+  if (!deleteProduct) {
     return res.status(400).send("Error deleting product");
   }
   res.status(200).send("Deleting product was successful");

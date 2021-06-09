@@ -17,6 +17,7 @@ const Store = new Schema({
   },
   discountExpiration: {
     type: Date,
+    default: Date.now,
   },
   tax: {
     type: Number,
