@@ -116,22 +116,31 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
 // To delete another admin it's possible only thru customer service
 //
 authRouter.delete("/delete/:id", verifyAdminToken, async (req, res) => {
+  // Get the user profile we want to delete
   const getUserToDelete = await User.findById(req.params.id);
   if (!getUserToDelete) {
     return res.status(400).send("Error getting user profile");
   }
 
-  if (
-    getUserToDelete.user.role === "Admin" &&
-    getUserToDelete.user._id === req.verified.user._id
-  ) {
-    User.countDocuments({ role: "Admin" }, function (err, adminCount) {
-      if (err || adminCount < 2) {
-        return res.status(400).send("Error deleting user");
-      }
-    });
+  // If the user role we want to delete is admin...
+  if (getUserToDelete.role === "Admin") {
+    // ...and if the user to delete is the same user request...
+    if (getUserToDelete._id == req.verified.user._id) {
+      // ...check if only one admin exist on database.
+      User.countDocuments({ role: "Admin" }, function (err, adminCount) {
+        if (err || adminCount < 2) {
+          // If error or only one admin on database, don't delete and return
+          return res.status(400).send("Error deleting user");
+        }
+      });
+    } else {
+      // If the user request is not the same user to delete,
+      // don't delete and return
+      return res.status(400).send("Error deleting user");
+    }
   }
 
+  // All conditions are met, delete the user profile
   const deleteUser = await User.deleteOne({ _id: req.params.id });
   if (!deleteUser) {
     return res.status(400).send("Error deleting user");

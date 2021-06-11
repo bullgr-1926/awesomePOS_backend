@@ -14,18 +14,12 @@ userRouter.get("/", verifyToken, (req, res) => {
 // Get the user profile (except password)
 // for the logged in user
 //
-userRouter.get("/profile", verifyToken, (req, res) => {
-  const userProfile = {
-    id: req.verified.user._id,
-    username: req.verified.user.username,
-    email: req.verified.user.email,
-    firstname: req.verified.user.firstname,
-    lastname: req.verified.user.lastname,
-    role: req.verified.user.role,
-    lastActive: req.verified.user.lastActive,
-  };
-
-  res.json(userProfile);
+userRouter.get("/profile", verifyToken, async (req, res) => {
+  const userProfile = await User.findById(req.verified.user._id);
+  if (!userProfile) {
+    return res.status(400).send("Error getting user profile");
+  }
+  res.json({ userProfile });
 });
 
 //
@@ -39,17 +33,6 @@ userRouter.get("/profiles", verifyAdminToken, async (req, res) => {
   }
 
   res.json({ allProfiles });
-  /* const userProfile = {
-    id: req.verified.user._id,
-    username: req.verified.user.username,
-    email: req.verified.user.email,
-    firstname: req.verified.user.firstname,
-    lastname: req.verified.user.lastname,
-    role: req.verified.user.role,
-    lastActive: req.verified.user.lastActive,
-  };
-
-  res.json(userProfile); */
 });
 
 module.exports = userRouter;
