@@ -9,10 +9,10 @@ const verifyToken = (req, res, next) => {
 
   try {
     const verified = jwt.verify(token, process.env.SECRET);
-    req.user = verified;
+    req.verified = verified;
     next();
   } catch (err) {
-    res.send("error");
+    res.send("Access denied");
   }
 };
 

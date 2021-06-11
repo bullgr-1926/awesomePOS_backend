@@ -9,9 +9,9 @@ const verifyAdminToken = (req, res, next) => {
 
   try {
     const verified = jwt.verify(token, process.env.SECRET);
-    req.user = verified;
+    req.verified = verified;
 
-    if (req.user.user.role === "Admin") {
+    if (req.verified.user.role === "Admin") {
       next();
     } else {
       return res.status(400).send("Access denied");

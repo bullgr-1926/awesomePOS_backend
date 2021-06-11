@@ -1,13 +1,24 @@
 const authRouter = require("express").Router();
 const User = require("../models/User");
 const verifyAdminToken = require("./verifyAdminToken");
+const verifyToken = require("./verifyToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const userRoles = require("../userRoles");
 
+//
+// New user registration
+// Important: Only the admin can register new users
+//
 authRouter.post("/register", verifyAdminToken, async (req, res) => {
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist) {
     return res.status(400).send("Email already exist");
+  }
+
+  // Check if the user role is valid
+  if (!userRoles.includes(req.body.role)) {
+    return res.status(400).send("Invalid user role");
   }
 
   const user = new User({
@@ -38,6 +49,9 @@ authRouter.post("/register", verifyAdminToken, async (req, res) => {
   res.status(200).send("User registration was successful");
 });
 
+//
+// User login
+//
 authRouter.post("/login", async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
@@ -56,6 +70,74 @@ authRouter.post("/login", async (req, res) => {
   const token = jwt.sign({ user }, process.env.SECRET);
   res.header("auth-token", token);
   res.json(token);
+});
+
+//
+// Update the user profile.
+// Only the logged in user can change the own profile.
+//
+authRouter.put("/update/:id", verifyToken, async (req, res) => {
+  // Check if the user request is the same with the user profile.
+  // If not, we cannot update the user profile.
+  if (req.verified.user._id !== req.params.id) {
+    return res.status(400).send("User profile request is invalid");
+  }
+
+  const updateUser = await User.findById(req.params.id);
+  if (!updateUser) {
+    return res.status(400).send("Error getting user profile");
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashPassword = await bcrypt.hash(req.body.password, salt);
+
+  updateUser.username = req.body.username;
+  updateUser.email = req.body.email;
+  updateUser.password = hashPassword;
+  updateUser.firstname = req.body.firstname;
+  updateUser.lastname = req.body.lastname;
+  updateUser.role = req.body.role;
+  updateUser.lastActive = req.body.lastActive;
+
+  let error = updateUser.validateSync();
+  if (error) {
+    return res.status(400).send(error);
+  }
+
+  await updateUser.save();
+  res.status(200).send("User profile update was successful");
+});
+
+//
+// Delete a user
+// Only admins can delete users
+// Admins can delete theyrselfs but not other admins
+// and only if they are not the last admin on db
+// To delete another admin it's possible only thru customer service
+//
+authRouter.delete("/delete/:id", verifyAdminToken, async (req, res) => {
+  const getUserToDelete = await User.findById(req.params.id);
+  if (!getUserToDelete) {
+    return res.status(400).send("Error getting user profile");
+  }
+
+  if (
+    getUserToDelete.user.role === "Admin" &&
+    getUserToDelete.user._id === req.verified.user._id
+  ) {
+    User.countDocuments({ role: "Admin" }, function (err, adminCount) {
+      if (err || adminCount < 2) {
+        return res.status(400).send("Error deleting user");
+      }
+    });
+  }
+
+  const deleteUser = await User.deleteOne({ _id: req.params.id });
+  if (!deleteUser) {
+    return res.status(400).send("Error deleting user");
+  }
+
+  res.status(200).send("Deleting user was successful");
 });
 
 module.exports = authRouter;
