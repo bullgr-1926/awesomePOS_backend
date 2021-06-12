@@ -58,6 +58,10 @@ authRouter.post("/login", async (req, res) => {
     return res.status(400).send("Email not found");
   }
 
+  if (!req.body.password) {
+    return res.status(400).send("Password not found");
+  }
+
   const comparePassword = await bcrypt.compare(
     req.body.password,
     user.password
