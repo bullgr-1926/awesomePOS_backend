@@ -87,6 +87,16 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
     return res.status(400).send("User profile request is invalid");
   }
 
+  // Check if the user want to change the actual email.
+  // If yes, check if the new email already exist on db.
+  // If email exist, the request is invalid.
+  if (req.verified.user.email !== req.params.email) {
+    const newEmail = await User.findOne({ email: req.body.email });
+    if (newEmail) {
+      return res.status(400).send("Email already exist");
+    }
+  }
+
   const updateUser = await User.findById(req.params.id);
   if (!updateUser) {
     return res.status(400).send("Error getting user profile");
