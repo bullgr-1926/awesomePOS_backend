@@ -26,6 +26,19 @@ categoryRouter.get("/:id", verifyToken, async (req, res) => {
 });
 
 //
+// Get a category by title using search text (starts with)
+//
+categoryRouter.get("/title/:title", verifyToken, async (req, res) => {
+  const getCategories = await Category.find({
+    title: { $regex: `^${req.params.title}`, $options: "i" },
+  });
+  if (!getCategories) {
+    return res.status(400).send("Error getting category");
+  }
+  res.json({ getCategories });
+});
+
+//
 // Update a category by id using the save mode to work
 // asynchronous and with validation
 //
