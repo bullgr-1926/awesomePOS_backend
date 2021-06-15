@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const defaultDate = require("./Helperfunctions");
 
 const Store = new Schema({
   title: {
@@ -16,8 +17,8 @@ const Store = new Schema({
     default: 0,
   },
   discountExpiration: {
-    type: Date,
-    default: Date.now,
+    type: String,
+    default: defaultDate.createLocaleDateString(),
   },
   tax: {
     type: Number,
