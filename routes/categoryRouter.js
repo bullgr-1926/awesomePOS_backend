@@ -33,7 +33,7 @@ categoryRouter.get("/title/:title", verifyToken, async (req, res) => {
     title: { $regex: `^${req.params.title}`, $options: "i" },
   });
   if (!getCategories) {
-    return res.status(400).send("Error getting category");
+    return res.status(400).send("Error getting categories");
   }
   res.json({ getCategories });
 });
