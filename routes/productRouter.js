@@ -53,6 +53,17 @@ productRouter.get("/title/:title", verifyToken, async (req, res) => {
 });
 
 //
+// Get a product by category to filter the products
+//
+productRouter.post("/category", verifyToken, async (req, res) => {
+  const getProducts = await Product.find({ category: req.body.category });
+  if (!getProducts) {
+    return res.status(400).send("Error getting products");
+  }
+  res.json({ getProducts });
+});
+
+//
 // Search a product by title or barcode
 // Request is a object:
 // type: title of barcode
