@@ -90,7 +90,7 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
   // Check if the user want to change the actual email.
   // If yes, check if the new email already exist on db.
   // If email exist, the request is invalid.
-  if (req.verified.user.email !== req.params.email) {
+  if (req.verified.user.email !== req.body.email) {
     const newEmail = await User.findOne({ email: req.body.email });
     if (newEmail) {
       return res.status(400).send("Email already exist");
@@ -102,18 +102,38 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
     return res.status(400).send("Error getting user profile");
   }
 
-  const salt = await bcrypt.genSalt(10);
-  const hashPassword = await bcrypt.hash(req.body.password, salt);
-
+  // Set the new data from request and validate first
+  // before we hash the password.
   updateUser.username = req.body.username;
   updateUser.email = req.body.email;
-  updateUser.password = hashPassword;
   updateUser.firstname = req.body.firstname;
   updateUser.lastname = req.body.lastname;
   updateUser.role = req.body.role;
   updateUser.lastActive = req.body.lastActive;
 
-  let error = updateUser.validateSync();
+  // Set the password only if the user wants to change it.
+  // Else it remains the same and we don't need to encrypt it.
+  if (req.body.password) {
+    updateUser.password = req.body.password;
+
+    // Validate first the new password
+    let error = updateUser.validateSync();
+    if (error) {
+      return res.status(400).send(error);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+
+    // Update the new hashed password to the new user object
+    // and validate a last time before save to db.
+    updateUser.password = hashPassword;
+  } else {
+    // Else set the default password
+    updateUser.password = req.verified.user.password;
+  }
+
+  error = updateUser.validateSync();
   if (error) {
     return res.status(400).send(error);
   }

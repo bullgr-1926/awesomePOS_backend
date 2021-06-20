@@ -19,7 +19,7 @@ storeRouter.get("/", verifyToken, async (req, res) => {
 // asynchronous and with validation
 //
 storeRouter.put("/:id", verifyAdminToken, async (req, res) => {
-  const updateStore = await Store.find({});
+  const updateStore = await Store.findById(req.params.id);
   if (!updateStore) {
     return res.status(400).send("Error getting store info");
   }
@@ -51,11 +51,18 @@ storeRouter.put("/:id", verifyAdminToken, async (req, res) => {
 // Note: Only one store entry can be exist
 //
 storeRouter.post("/add_store", verifyAdminToken, async (req, res) => {
+  // Get anything from store
   const storeExist = await Store.find({});
-  if (storeExist) {
-    return res.status(400).send("Store info already exist");
+
+  // Check if there is already a store (object lenght).
+  // If not zero, there is already a store and we cannot
+  // continue the request
+  const storesInDb = Object.keys(storeExist).length;
+  if (storesInDb) {
+    return res.status(400).send("There is already a store database");
   }
 
+  // There is no store in db, so the finalize the request
   const newStore = new Store({
     title: req.body.title,
     discount: req.body.discount,
