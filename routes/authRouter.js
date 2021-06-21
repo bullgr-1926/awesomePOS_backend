@@ -5,6 +5,7 @@ const verifyToken = require("./verifyToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userRoles = require("../userRoles");
+const defaultDate = require("../models/Helperfunctions");
 
 //
 // New user registration
@@ -28,7 +29,6 @@ authRouter.post("/register", verifyAdminToken, async (req, res) => {
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     role: req.body.role,
-    lastActive: req.body.lastActive,
   });
 
   let error = user.validateSync();
@@ -71,6 +71,9 @@ authRouter.post("/login", async (req, res) => {
     return res.status(400).send("Wrong password");
   }
 
+  // Update the last active date
+  user.lastActive = defaultDate.createLocaleString();
+
   const token = jwt.sign({ user }, process.env.SECRET);
   res.header("auth-token", token);
   res.json(token);
@@ -97,27 +100,27 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
     }
   }
 
-  const updateUser = await User.findById(req.params.id);
-  if (!updateUser) {
+  const user = await User.findById(req.params.id);
+  if (!user) {
     return res.status(400).send("Error getting user profile");
   }
 
   // Set the new data from request and validate first
   // before we hash the password.
-  updateUser.username = req.body.username;
-  updateUser.email = req.body.email;
-  updateUser.firstname = req.body.firstname;
-  updateUser.lastname = req.body.lastname;
-  updateUser.role = req.body.role;
-  updateUser.lastActive = req.body.lastActive;
+  user.username = req.body.username;
+  user.email = req.body.email;
+  user.firstname = req.body.firstname;
+  user.lastname = req.body.lastname;
+  user.role = req.body.role;
+  user.lastActive = defaultDate.createLocaleString();
 
   // Set the password only if the user wants to change it.
   // Else it remains the same and we don't need to encrypt it.
   if (req.body.password) {
-    updateUser.password = req.body.password;
+    user.password = req.body.password;
 
     // Validate first the new password
-    let error = updateUser.validateSync();
+    let error = user.validateSync();
     if (error) {
       return res.status(400).send(error);
     }
@@ -126,30 +129,35 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
     const hashPassword = await bcrypt.hash(req.body.password, salt);
 
     // Update the new hashed password to the new user object
-    // and validate a last time before save to db.
-    updateUser.password = hashPassword;
+    user.password = hashPassword;
   } else {
     // Else set the default password
-    updateUser.password = req.verified.user.password;
+    user.password = req.verified.user.password;
   }
 
-  error = updateUser.validateSync();
+  // Validate a last time before save to db
+  error = user.validateSync();
   if (error) {
     return res.status(400).send(error);
   }
 
-  await updateUser.save();
-  res.status(200).send("User profile update was successful");
+  // Save the changes to db
+  await user.save();
+
+  // Return the updated user token
+  const token = jwt.sign({ user }, process.env.SECRET);
+  res.header("auth-token", token);
+  res.json(token);
 });
 
 //
 // Delete a user
-// Only admins can delete users
-// Admins can delete theyrselfs but not other admins
-// and only if they are not the last admin on db
-// To delete another admin it's possible only thru customer service
+// Only admins can delete other users.
+// Admins can delete theyr own profile but not other admins
+// and only if they are not the last admin on db.
+// To delete another admin it's possible only thru customer service.
 //
-authRouter.delete("/delete/:id", verifyAdminToken, async (req, res) => {
+authRouter.delete("/delete_user/:id", verifyAdminToken, async (req, res) => {
   // Get the user profile we want to delete
   const getUserToDelete = await User.findById(req.params.id);
   if (!getUserToDelete) {
@@ -164,20 +172,73 @@ authRouter.delete("/delete/:id", verifyAdminToken, async (req, res) => {
       User.countDocuments({ role: "Admin" }, function (err, adminCount) {
         if (err || adminCount < 2) {
           // If error or only one admin on database, don't delete and return
-          return res.status(400).send("Error deleting user");
+          return res
+            .status(400)
+            .send(
+              "Error deleting user profile. There is only one admin in database."
+            );
         }
       });
     } else {
       // If the user request is not the same user to delete,
       // don't delete and return
-      return res.status(400).send("Error deleting user");
+      return res
+        .status(400)
+        .send(
+          "Error deleting user profile. The admin profile is not the same with the request."
+        );
     }
   }
 
   // All conditions are met, delete the user profile
   const deleteUser = await User.deleteOne({ _id: req.params.id });
   if (!deleteUser) {
-    return res.status(400).send("Error deleting user");
+    return res.status(400).send("Error deleting user profile");
+  }
+
+  res.status(200).send("Deleting user was successful");
+});
+
+//
+// Delete a profile
+// Users can delete theyr own profile
+// and only if they are not the last admin on db.
+//
+authRouter.delete("/delete_profile/:id", verifyToken, async (req, res) => {
+  // Get the user profile we want to delete
+  const getUserToDelete = await User.findById(req.params.id);
+  if (!getUserToDelete) {
+    return res.status(400).send("Error getting user profile");
+  }
+
+  // The user must the same with the delete request
+  if (getUserToDelete._id != req.verified.user._id) {
+    return res
+      .status(400)
+      .send(
+        "Error deleting user profile. The profile is not the same with the request."
+      );
+  }
+
+  // If the user role we want to delete is admin...
+  if (getUserToDelete.role === "Admin") {
+    // ...check if only one admin exist on database.
+    User.countDocuments({ role: "Admin" }, function (err, adminCount) {
+      if (err || adminCount < 2) {
+        // If error or only one admin on database, don't delete and return
+        return res
+          .status(400)
+          .send(
+            "Error deleting user profile. There is only one admin in database."
+          );
+      }
+    });
+  }
+
+  // All conditions are met, delete the user profile
+  const deleteUser = await User.deleteOne({ _id: req.params.id });
+  if (!deleteUser) {
+    return res.status(400).send("Error deleting user profile");
   }
 
   res.status(200).send("Deleting user was successful");
