@@ -53,6 +53,17 @@ productRouter.get("/title/:title", verifyToken, async (req, res) => {
 });
 
 //
+// Get a product by barcode
+//
+productRouter.get("/barcode/:barcode", verifyToken, async (req, res) => {
+  const getProduct = await Product.findOne({ barcode: req.params.barcode });
+  if (!getProduct) {
+    return res.status(400).send("Error getting products");
+  }
+  res.json({ getProduct });
+});
+
+//
 // Get a product by category to filter the products
 //
 productRouter.post("/category", verifyToken, async (req, res) => {
@@ -61,28 +72,6 @@ productRouter.post("/category", verifyToken, async (req, res) => {
     return res.status(400).send("Error getting products");
   }
   res.json({ getProducts });
-});
-
-//
-// Search a product by title or barcode
-// Request is a object:
-// type: title of barcode
-// value: the value of the correspond type
-//
-productRouter.post("/search", verifyToken, async (req, res) => {
-  let getProduct = "";
-  if (req.body.type === "title") {
-    getProduct = await Product.findOne({ title: req.body.value });
-  }
-
-  if (req.body.type === "barcode") {
-    getProduct = await Product.findOne({ barcode: req.body.value });
-  }
-
-  if (!getProduct) {
-    return res.status(400).send("Error getting product");
-  }
-  res.json({ getProduct });
 });
 
 //
