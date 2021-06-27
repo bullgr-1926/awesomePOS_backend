@@ -1,27 +1,35 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const defaultDate = require("./Helperfunctions");
 
 const Receipt = new Schema({
   products: {
     type: [],
   },
-  discount: {
+  userId: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  createdAt: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  tax: {
     type: Number,
     min: 0,
-    max: 100,
   },
   subTotal: {
     type: Number,
     min: 0,
   },
-  total: {
+  taxTotal: {
     type: Number,
     min: 0,
   },
-  createdAt: {
-    type: String,
-    default: defaultDate.createLocaleString(),
+  grandTotal: {
+    type: Number,
+    min: 0,
   },
 });
 
