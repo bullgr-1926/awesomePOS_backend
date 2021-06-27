@@ -32,9 +32,12 @@ receiptRouter.get("/:id", verifyToken, async (req, res) => {
 receiptRouter.post("/add_receipt", verifyToken, async (req, res) => {
   const newReceipt = new Receipt({
     products: req.body.products,
-    discount: req.body.discount,
-    subTotal: req.body.subTotal,
-    total: req.body.total,
+    userId: req.body.userId,
+    createdAt: req.body.createdAt,
+    tax: req.body.tax,
+    subtotal: req.body.subtotal,
+    taxtotal: req.body.taxtotal,
+    grandtotal: req.body.grandtotal,
   });
 
   let error = newReceipt.validateSync();

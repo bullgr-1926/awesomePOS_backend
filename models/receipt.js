@@ -19,15 +19,15 @@ const Receipt = new Schema({
     type: Number,
     min: 0,
   },
-  subTotal: {
+  subtotal: {
     type: Number,
     min: 0,
   },
-  taxTotal: {
+  taxtotal: {
     type: Number,
     min: 0,
   },
-  grandTotal: {
+  grandtotal: {
     type: Number,
     min: 0,
   },
