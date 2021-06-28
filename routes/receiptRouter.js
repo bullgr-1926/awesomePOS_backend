@@ -4,10 +4,10 @@ const verifyAdminToken = require("./verifyAdminToken");
 const verifyToken = require("./verifyToken");
 
 //
-// Get all the receipts
+// Get all the receipts in descending order
 //
 receiptRouter.get("/", verifyToken, async (req, res) => {
-  const allReceipts = await Receipt.find({});
+  const allReceipts = await Receipt.find({}).sort({ createdAt: -1 });
   if (!allReceipts) {
     return res.status(400).send("Error getting receipt");
   }
@@ -15,14 +15,16 @@ receiptRouter.get("/", verifyToken, async (req, res) => {
 });
 
 //
-// Get a receipt by id
+// Get all receipts by regular expression
 //
-receiptRouter.get("/:id", verifyToken, async (req, res) => {
-  const getReceipt = await Receipt.findById(req.params.id);
-  if (!getReceipt) {
-    return res.status(400).send("Error getting receipt");
+receiptRouter.get("/:date", verifyToken, async (req, res) => {
+  const getReceipts = await Receipt.find({
+    createdAt: { $regex: `^${req.params.date}`, $options: "i" },
+  });
+  if (!getReceipts) {
+    return res.status(400).send("Error getting receipts");
   }
-  res.json({ getReceipt });
+  res.json({ getReceipts });
 });
 
 //

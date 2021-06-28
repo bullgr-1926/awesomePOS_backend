@@ -18,6 +18,19 @@ const checkCategory = async (categoryTitle) => {
 };
 
 //
+// Method to check if a barcode already exist before
+// we create the product
+//
+const checkBarcode = async (productBarcode) => {
+  const barcodeExist = await Product.findOne({ barcode: productBarcode });
+  if (barcodeExist) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+//
 // Get all the products
 //
 productRouter.get("/", verifyToken, async (req, res) => {
@@ -76,7 +89,10 @@ productRouter.post("/category", verifyToken, async (req, res) => {
 
 //
 // Update a product by id using the save mode to work
-// asynchronous and with validation
+// asynchronous and with validation.
+// Check if the barcode must change. If yes, check first
+// if the barcode already exist in database.
+// The barcode must be unique for each product.
 //
 productRouter.put("/:id", verifyAdminToken, async (req, res) => {
   const updateProduct = await Product.findById(req.params.id);
@@ -89,6 +105,16 @@ productRouter.put("/:id", verifyAdminToken, async (req, res) => {
   const categoryExist = await checkCategory(req.body.category);
   if (!categoryExist) {
     return res.status(400).send("The category does not exist");
+  }
+
+  // Check if there is a barcode change request.
+  // If yes, check if the barcode already exist in database.
+  // If the barcode already exist, we cannot update the product.
+  if (updateProduct.barcode !== req.body.barcode) {
+    const barcodeExist = await checkBarcode(req.body.barcode);
+    if (barcodeExist) {
+      return res.status(400).send("The barcode already exist in database");
+    }
   }
 
   updateProduct.title = req.body.title;
@@ -110,19 +136,22 @@ productRouter.put("/:id", verifyAdminToken, async (req, res) => {
 
 //
 // Create a product using the save mode to work
-// asynchronous and with validation
+// asynchronous and with validation.
+// Check first if the barcode already exist in database.
+// The barcode must be unique for each product.
 //
 productRouter.post("/add_product", verifyAdminToken, async (req, res) => {
-  const productExist = await Product.findOne({ title: req.body.title });
-  if (productExist) {
-    return res.status(400).send("The product already exist");
-  }
-
   // Check if the given category for this product exist.
   // If not, we cannot create the product
   const categoryExist = await checkCategory(req.body.category);
   if (!categoryExist) {
     return res.status(400).send("The category does not exist");
+  }
+
+  // If the barcode already exist, we cannot create the product.
+  const barcodeExist = await checkBarcode(req.body.barcode);
+  if (barcodeExist) {
+    return res.status(400).send("The barcode already exist in database");
   }
 
   const newProduct = new Product({
