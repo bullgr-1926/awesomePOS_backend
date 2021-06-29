@@ -7,7 +7,7 @@ const verifyToken = require("./verifyToken");
 // Get all the receipts in descending order
 //
 receiptRouter.get("/", verifyToken, async (req, res) => {
-  const allReceipts = await Receipt.find({}).sort({ createdAt: -1 });
+  const allReceipts = await Receipt.find({}).sort({ createdAt: -1 }).limit(100);
   if (!allReceipts) {
     return res.status(400).send("Error getting receipt");
   }
@@ -48,7 +48,7 @@ receiptRouter.post("/add_receipt", verifyToken, async (req, res) => {
   }
 
   await newReceipt.save();
-  res.status(200).send("Receipt creation was successful");
+  res.status(200).send(newReceipt._id);
 });
 
 //

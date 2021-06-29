@@ -34,7 +34,7 @@ const checkBarcode = async (productBarcode) => {
 // Get all the products
 //
 productRouter.get("/", verifyToken, async (req, res) => {
-  const allProducts = await Product.find({});
+  const allProducts = await Product.find({}).limit(100);
   if (!allProducts) {
     return res.status(400).send("Error getting products");
   }
