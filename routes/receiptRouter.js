@@ -4,10 +4,23 @@ const verifyAdminToken = require("./verifyAdminToken");
 const verifyToken = require("./verifyToken");
 
 //
-// Get all the receipts in descending order
+// Get all the receipts in descending order with limit
 //
 receiptRouter.get("/", verifyToken, async (req, res) => {
-  const allReceipts = await Receipt.find({}).sort({ createdAt: -1 }).limit(100);
+  const allReceipts = await Receipt.find({})
+    .sort({ receiptDate: -1 })
+    .limit(100);
+  if (!allReceipts) {
+    return res.status(400).send("Error getting receipt");
+  }
+  res.json({ allReceipts });
+});
+
+//
+// Get all the receipts in descending order
+//
+receiptRouter.get("/all", verifyToken, async (req, res) => {
+  const allReceipts = await Receipt.find({}).sort({ receiptDate: -1 });
   if (!allReceipts) {
     return res.status(400).send("Error getting receipt");
   }
@@ -19,7 +32,7 @@ receiptRouter.get("/", verifyToken, async (req, res) => {
 //
 receiptRouter.get("/:date", verifyToken, async (req, res) => {
   const getReceipts = await Receipt.find({
-    createdAt: { $regex: `^${req.params.date}`, $options: "i" },
+    receiptDate: { $regex: `^${req.params.date}`, $options: "i" },
   });
   if (!getReceipts) {
     return res.status(400).send("Error getting receipts");
@@ -35,7 +48,7 @@ receiptRouter.post("/add_receipt", verifyToken, async (req, res) => {
   const newReceipt = new Receipt({
     products: req.body.products,
     userId: req.body.userId,
-    createdAt: req.body.createdAt,
+    receiptDate: req.body.receiptDate,
     tax: req.body.tax,
     subtotal: req.body.subtotal,
     taxtotal: req.body.taxtotal,

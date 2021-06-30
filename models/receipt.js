@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const defaultDate = require("./Helperfunctions");
 
 const Receipt = new Schema({
   products: {
@@ -10,7 +11,7 @@ const Receipt = new Schema({
     trim: true,
     required: true,
   },
-  createdAt: {
+  receiptDate: {
     type: String,
     trim: true,
     required: true,
@@ -30,6 +31,10 @@ const Receipt = new Schema({
   grandtotal: {
     type: Number,
     min: 0,
+  },
+  createdAt: {
+    type: String,
+    default: defaultDate.createLocaleDateString(),
   },
 });
 
