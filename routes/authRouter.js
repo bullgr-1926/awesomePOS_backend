@@ -5,7 +5,6 @@ const verifyToken = require("./verifyToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userRoles = require("../userRoles");
-const defaultDate = require("../models/Helperfunctions");
 
 //
 // New user registration
@@ -72,7 +71,7 @@ authRouter.post("/login", async (req, res) => {
   }
 
   // Update the last active date
-  user.lastActive = defaultDate.createLocaleString();
+  user.lastActive = new Date();
 
   const token = jwt.sign({ user }, process.env.SECRET);
   res.header("auth-token", token);
@@ -112,7 +111,7 @@ authRouter.put("/update/:id", verifyToken, async (req, res) => {
   user.firstname = req.body.firstname;
   user.lastname = req.body.lastname;
   user.role = req.body.role;
-  user.lastActive = defaultDate.createLocaleString();
+  user.lastActive = new Date();
 
   // Set the password only if the user wants to change it.
   // Else it remains the same and we don't need to encrypt it.

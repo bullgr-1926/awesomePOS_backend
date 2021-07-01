@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 require("mongoose-type-email");
 const Schema = mongoose.Schema;
-const defaultDate = require("./Helperfunctions");
 
 const User = new Schema({
   username: {
@@ -40,8 +39,8 @@ const User = new Schema({
     required: true,
   },
   lastActive: {
-    type: String,
-    default: defaultDate.createLocaleString(),
+    type: Date,
+    default: new Date(),
   },
 });
 

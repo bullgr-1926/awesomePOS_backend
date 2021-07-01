@@ -25,8 +25,6 @@ storeRouter.put("/:id", verifyAdminToken, async (req, res) => {
   }
 
   updateStore.title = req.body.title;
-  updateStore.discount = req.body.discount;
-  updateStore.discountExpiration = req.body.discountExpiration;
   updateStore.tax = req.body.tax;
   updateStore.currency = req.body.currency;
   updateStore.street = req.body.street;
@@ -59,14 +57,12 @@ storeRouter.post("/add_store", verifyAdminToken, async (req, res) => {
   // continue the request
   const storesInDb = Object.keys(storeExist).length;
   if (storesInDb) {
-    return res.status(400).send("There is already a store database");
+    return res.status(400).send("There is already a store in database");
   }
 
   // There is no store in db, so the finalize the request
   const newStore = new Store({
     title: req.body.title,
-    discount: req.body.discount,
-    discountExpiration: req.body.discountExpiration,
     tax: req.body.tax,
     currency: req.body.currency,
     street: req.body.street,

@@ -71,7 +71,7 @@ productRouter.get("/title/:title", verifyToken, async (req, res) => {
 productRouter.get("/barcode/:barcode", verifyToken, async (req, res) => {
   const getProduct = await Product.findOne({ barcode: req.params.barcode });
   if (!getProduct) {
-    return res.status(400).send("Error getting products");
+    return res.status(400).send("Error getting product");
   }
   res.json({ getProduct });
 });

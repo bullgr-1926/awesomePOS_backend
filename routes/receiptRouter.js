@@ -6,7 +6,7 @@ const verifyToken = require("./verifyToken");
 //
 // Get all the receipts in descending order with limit
 //
-receiptRouter.get("/", verifyToken, async (req, res) => {
+receiptRouter.get("/", verifyAdminToken, async (req, res) => {
   const allReceipts = await Receipt.find({})
     .sort({ receiptDate: -1 })
     .limit(100);
@@ -19,7 +19,7 @@ receiptRouter.get("/", verifyToken, async (req, res) => {
 //
 // Get all the receipts in descending order
 //
-receiptRouter.get("/all", verifyToken, async (req, res) => {
+receiptRouter.get("/all", verifyAdminToken, async (req, res) => {
   const allReceipts = await Receipt.find({}).sort({ receiptDate: -1 });
   if (!allReceipts) {
     return res.status(400).send("Error getting receipt");
@@ -30,7 +30,7 @@ receiptRouter.get("/all", verifyToken, async (req, res) => {
 //
 // Get all receipts by regular expression
 //
-receiptRouter.get("/:date", verifyToken, async (req, res) => {
+receiptRouter.get("/:date", verifyAdminToken, async (req, res) => {
   const getReceipts = await Receipt.find({
     receiptDate: { $regex: `^${req.params.date}`, $options: "i" },
   });
