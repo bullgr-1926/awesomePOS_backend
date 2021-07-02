@@ -20,7 +20,7 @@ receiptRouter.get("/", verifyAdminToken, async (req, res) => {
 // Get all the receipts in descending order
 //
 receiptRouter.get("/all", verifyAdminToken, async (req, res) => {
-  const allReceipts = await Receipt.find({}).sort({ receiptDate: -1 });
+  const allReceipts = await Receipt.find({}).sort({ createdAt: -1 });
   if (!allReceipts) {
     return res.status(400).send("Error getting receipt");
   }
