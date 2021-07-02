@@ -1,5 +1,5 @@
 const receiptRouter = require("express").Router();
-const Receipt = require("../models/Receipt");
+const Receipt = require("../models/Receipt.js");
 const verifyAdminToken = require("./verifyAdminToken");
 const verifyToken = require("./verifyToken");
 
