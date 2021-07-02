@@ -6,7 +6,7 @@ const verifyToken = require("./verifyToken");
 //
 // Get the store info
 //
-storeRouter.get("/", verifyToken, async (req, res) => {
+storeRouter.get("/", async (req, res) => {
   const store = await Store.find({});
   if (!store) {
     return res.status(400).send("Error getting store info");
