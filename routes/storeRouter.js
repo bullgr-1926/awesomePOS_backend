@@ -3,6 +3,11 @@ const Store = require("../models/Store");
 const verifyAdminToken = require("./verifyAdminToken");
 const verifyToken = require("./verifyToken");
 
+storeRouter.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 //
 // Get the store info
 //

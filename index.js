@@ -20,11 +20,6 @@ const productRouter = require("./routes/productRouter");
 const receiptRouter = require("./routes/receiptRouter");
 const storeRouter = require("./routes/storeRouter");
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
-
 // Router setup
 app.use("/", userRouter);
 app.use("/user", authRouter);
