@@ -3,16 +3,7 @@
  <img width=200px height=200px src="assets/logo.png" alt="Awesome POS logo"></a>
 </p>
 
-<h3 align="center">Awesome POS</h3>
-
-<div align="center">
-
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/stavros-temertzidis/awesome-pos_frontend/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/stavros-temertzidis/awesome-pos_frontend/pulls)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
-
-</div>
+<h2 align="center">Awesome POS</h2>
 
 ---
 
@@ -24,7 +15,7 @@
 
 <br>
 
-## 🧐 About
+## About
 
 Awesome POS is a Point of Sale System that supports a barcode scanner.<br>
 The idea came up when I noticed how hardware-dependent the usual point of sale systems are.<br>
@@ -33,7 +24,7 @@ With these questions in mind, I decided to give it a try and create a point of s
 
 <br>
 
-## 🎈 Demo
+## Demo
 
 [Demo page](https://awesomepos.netlify.app/) deployed on Netlify (frontend) and Heroku (backend).
 
@@ -48,7 +39,7 @@ Password: 87654321
 
 <br>
 
-## 🎈 Usage
+## Usage
 
 - After login, the user will be redirected to the Transaction page.<br>
 - The user can switch between the use of the barcode scanner or product icons to add products on the checkout.<br>
@@ -60,15 +51,21 @@ Password: 87654321
 
 <br>
 
-## ⛏️ Built Using
+## Built Using
 
 - [MongoDB](https://www.mongodb.com/) - Database
 - [Express](https://expressjs.com/) - Server Framework
-- [VueJs](https://reactjs.org/) - Web Framework
-- [NodeJs](https://nodejs.org/en/) - Server Environment
+- [ReactJS](https://reactjs.org/) - Web Framework
+- [NodeJS](https://nodejs.org/en/) - Server Environment
 
 <br>
 
-## ✍️ Authors
+## Authors
 
 - [@stavros-temertzidis](https://github.com/stavros-temertzidis) - Idea & Initial work
+
+<br>
+
+## Licence
+
+[MIT](LICENSE)
